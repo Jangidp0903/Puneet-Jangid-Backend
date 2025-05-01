@@ -26,7 +26,7 @@ export const createContact = async (req, res, next) => {
 // Get All Contacts Controller
 export const getAllContacts = async (req, res, next) => {
   try {
-    const contacts = await Contact.find({});
+    const contacts = await Contact.find({}).sort({ createdAt: -1 });
     if (!contacts) {
       return next(new ErrorHandler("No contacts found", 404));
     }

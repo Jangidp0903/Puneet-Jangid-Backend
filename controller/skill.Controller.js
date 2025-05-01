@@ -31,7 +31,7 @@ export const createSkill = async (req, res, next) => {
 // Get All Skills
 export const getAllSkills = async (req, res, next) => {
   try {
-    const skills = await Skill.find({});
+    const skills = await Skill.find({}).sort({ createdAt: -1 });
 
     if (!skills) {
       return next(new ErrorHandler("No skills found", 404));

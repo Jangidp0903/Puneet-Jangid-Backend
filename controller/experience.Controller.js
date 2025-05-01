@@ -43,7 +43,7 @@ export const createExperience = async (req, res, next) => {
 // Get All Experiences
 export const getAllExperiences = async (req, res, next) => {
   try {
-    const experiences = await Experience.find({});
+    const experiences = await Experience.find({}).sort({ createdAt: -1 });
     if (!experiences) {
       return next(new ErrorHandler("No experiences found", 404));
     }

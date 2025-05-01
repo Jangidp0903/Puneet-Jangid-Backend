@@ -95,7 +95,7 @@ export const logoutUser = async (req, res, next) => {
 export const getUser = async (req, res, next) => {
   try {
     const user = await User.findById("680b0bdd656fe7247ffe6894").select(
-      "-password"
+      "-password -resetPasswordToken -resetPasswordExpire"
     );
 
     res.status(200).json({

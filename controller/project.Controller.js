@@ -40,7 +40,7 @@ export const createProject = async (req, res, next) => {
 // Get All Projects Controller
 export const getAllProjects = async (req, res, next) => {
   try {
-    const projects = await Project.find({});
+    const projects = await Project.find({}).sort({ createdAt: -1 });
     if (!projects) {
       return next(new ErrorHandler("No projects found", 404));
     }

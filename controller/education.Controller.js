@@ -37,7 +37,7 @@ export const createEducation = async (req, res, next) => {
 // Get All Educations
 export const getAllEducations = async (req, res, next) => {
   try {
-    const educations = await Education.find({});
+    const educations = await Education.find({}).sort({ createdAt: -1 });
     if (!educations) {
       return next(new ErrorHandler("No educations found", 404));
     }
