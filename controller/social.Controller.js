@@ -20,7 +20,7 @@ export const createSocial = async (req, res, next) => {
 // Get All Socials
 export const getAllSocials = async (req, res, next) => {
   try {
-    const socials = await Social.find({});
+    const socials = await Social.find({}).sort({ createdAt: -1 });
     if (!socials) {
       return next(new ErrorHandler("No socials found", 404));
     }
