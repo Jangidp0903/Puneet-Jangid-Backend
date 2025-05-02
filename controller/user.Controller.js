@@ -58,9 +58,9 @@ export const loginUser = async (req, res, next) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // only secure in prod
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // important for cross-site cookies
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
+      secure: process.env.NODE_ENV === "production", // production = true
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // must be None for cross-origin
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     });
 
     res.status(200).json({
