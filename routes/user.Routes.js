@@ -5,7 +5,6 @@ import {
   getUser,
   loginUser,
   logoutUser,
-  registerUser,
   resetPassword,
   updatePassword,
   updateUser,
@@ -14,9 +13,6 @@ import authMiddleware from "../middleware/authMiddleware.js";
 import { uploadUserAssets } from "../middleware/uploadMiddleware.js";
 
 const userRouter = express.Router();
-
-// Register User
-userRouter.post("/register", registerUser);
 
 // Login User
 userRouter.post("/login", loginUser);

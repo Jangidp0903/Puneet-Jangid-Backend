@@ -6,34 +6,6 @@ import { generateToken } from "../utils/generateToken.js";
 import crypto from "crypto";
 import { sendEmail } from "../utils/sendEmail.js";
 
-// Register User
-export const registerUser = async (req, res, next) => {
-  try {
-    const { fullName, email, password } = req.body;
-
-    const user = await User.findOne({ email });
-
-    if (user) {
-      return next(new ErrorHandler("User already exists", 400));
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await User.create({
-      fullName,
-      email,
-      password: hashedPassword,
-    });
-
-    res.status(201).json({
-      success: true,
-      user: newUser,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
 // Login User
 export const loginUser = async (req, res, next) => {
   try {
