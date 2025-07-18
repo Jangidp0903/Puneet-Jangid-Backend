@@ -6,16 +6,12 @@ import { ErrorHandler } from "../middleware/errorHandler.js";
 export const createSkill = async (req, res, next) => {
   try {
     const { name, category, proficiency, yearsOfExperience } = req.body;
-    // Check for uploaded file
-    if (!req.files || !req.files.skillImage || !req.files.skillImage[0]) {
-      return next(new ErrorHandler("Skill image is required", 400));
-    }
+
     const skill = await Skill.create({
       name,
       category,
       proficiency,
       yearsOfExperience,
-      skillImage: req.files.skillImage[0].path,
       userId: req.user,
     });
     res.status(201).json({
@@ -58,10 +54,6 @@ export const updateSkill = async (req, res, next) => {
     skill.yearsOfExperience =
       req.body.yearsOfExperience || skill.yearsOfExperience;
 
-    // Update skillImage only if file is uploaded
-    if (req.files?.skillImage?.[0]) {
-      skill.skillImage = req.files.skillImage[0].path;
-    }
     await skill.save();
     res.status(200).json({
       success: true,

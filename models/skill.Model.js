@@ -28,9 +28,6 @@ const SkillSchema = mongoose.Schema(
     yearsOfExperience: {
       type: Number,
     },
-    skillImage: {
-      type: String,
-    },
   },
   { timestamps: true }
 );

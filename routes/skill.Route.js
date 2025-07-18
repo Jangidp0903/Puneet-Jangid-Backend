@@ -1,6 +1,5 @@
 // Import
 import express from "express";
-import { uploadSkills } from "../middleware/uploadMiddleware.js";
 import {
   createSkill,
   deleteSkill,
@@ -14,13 +13,13 @@ import authMiddleware from "../middleware/authMiddleware.js";
 const skillRouter = express.Router();
 
 // Create Skill
-skillRouter.post("/create", authMiddleware, uploadSkills, createSkill);
+skillRouter.post("/create", authMiddleware, createSkill);
 
 // Get All Skills
 skillRouter.get("/all", getAllSkills);
 
 // Update Skill
-skillRouter.patch("/update/:id", uploadSkills, updateSkill);
+skillRouter.patch("/update/:id", updateSkill);
 
 // Delete Skill
 skillRouter.delete("/delete/:id", deleteSkill);

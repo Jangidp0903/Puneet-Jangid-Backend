@@ -71,8 +71,3 @@ export const uploadUserAssets = upload.fields([
 export const uploadProjects = upload.fields([
   { name: "projectImage", maxCount: 1 },
 ]);
-
-// Skill Image Upload
-export const uploadSkills = upload.fields([
-  { name: "skillImage", maxCount: 1 },
-]);
