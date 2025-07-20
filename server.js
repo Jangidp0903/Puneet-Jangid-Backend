@@ -17,6 +17,7 @@ import educationRouter from "./routes/education.Route.js";
 import experienceRouter from "./routes/experience.Route.js";
 import contactRouter from "./routes/contact.Route.js";
 import projectRouter from "./routes/project.Route.js";
+import resumeRouter from "./routes/resume.Route.js";
 
 // 4. Initialize App
 const app = express();
@@ -41,6 +42,7 @@ app.use("/api/education", educationRouter);
 app.use("/api/experience", experienceRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/project", projectRouter);
+app.use("/api/resume", resumeRouter);
 
 app.use(errorMiddleware);
 
