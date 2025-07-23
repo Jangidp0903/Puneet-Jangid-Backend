@@ -3,6 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 import {
   createResume,
+  getFullResume,
   getMyResume,
   updateResume,
 } from "../controller/resume.Controller.js";
@@ -26,16 +27,17 @@ const verifySecretKey = (req, res, next) => {
   next();
 };
 
-// Routes
-
 // Create Resume
 resumeRouter.post("/create-resume", verifySecretKey, createResume);
 
 // Update Resume
-resumeRouter.put("/update-resume", verifySecretKey, updateResume);
+resumeRouter.patch("/update-resume", verifySecretKey, updateResume);
 
 // Get Resume
 resumeRouter.get("/get-resume", verifySecretKey, getMyResume);
+
+// Get Full Resume
+resumeRouter.get("/get-full-resume/:userId", verifySecretKey, getFullResume);
 
 // Export Router
 export default resumeRouter;

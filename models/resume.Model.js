@@ -67,7 +67,6 @@ const resumeSchema = new mongoose.Schema(
         description: { type: String },
         link: { type: String },
         technologies: [String],
-        isFeatured: { type: Boolean, default: false },
       },
     ],
 

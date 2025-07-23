@@ -66,7 +66,29 @@ export const getMyResume = async (req, res, next) => {
   try {
     const userId = PUNEET_USER_ID;
 
+    // Find resume and return only personalDetails
+    const resume = await Resume.findOne({ userId }, "personalDetails");
+
+    if (!resume) {
+      return next(new ErrorHandler("No resume found for this user.", 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      data: resume.personalDetails,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get full resume data
+export const getFullResume = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
     const resume = await Resume.findOne({ userId });
+
     if (!resume) {
       return next(new ErrorHandler("No resume found for this user.", 404));
     }
