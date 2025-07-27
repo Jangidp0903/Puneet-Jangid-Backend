@@ -46,10 +46,56 @@ export const updateResume = async (req, res, next) => {
       );
     }
 
-    const updatedResume = await Resume.findOneAndUpdate({ userId }, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    // Helper to convert "DD-MM-YYYY" → Date object
+    const convertDate = (dateStr) => {
+      if (!dateStr || typeof dateStr !== "string") return null;
+      const parts = dateStr.split("-");
+      if (parts.length !== 3) return null;
+      return new Date(parts.reverse().join("-")); // to YYYY-MM-DD
+    };
+
+    // Fix education dates
+    if (Array.isArray(req.body.education)) {
+      req.body.education = req.body.education.map((item) => ({
+        ...item,
+        startDate: convertDate(item.startDate),
+        endDate: convertDate(item.endDate),
+      }));
+    }
+
+    // Fix experience dates
+    if (Array.isArray(req.body.experience)) {
+      req.body.experience = req.body.experience.map((item) => ({
+        ...item,
+        startDate: convertDate(item.startDate),
+        endDate: convertDate(item.endDate),
+      }));
+    }
+
+    // Fix certifications dates
+    if (Array.isArray(req.body.certifications)) {
+      req.body.certifications = req.body.certifications.map((item) => ({
+        ...item,
+        date: convertDate(item.date),
+      }));
+    }
+
+    // Fix awards dates
+    if (Array.isArray(req.body.awards)) {
+      req.body.awards = req.body.awards.map((item) => ({
+        ...item,
+        date: convertDate(item.date),
+      }));
+    }
+
+    const updatedResume = await Resume.findOneAndUpdate(
+      { userId },
+      { $set: { ...req.body } },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     res.status(200).json({
       success: true,

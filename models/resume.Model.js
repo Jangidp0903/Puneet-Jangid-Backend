@@ -28,10 +28,6 @@ const resumeSchema = new mongoose.Schema(
       {
         category: { type: String }, // e.g., frontend
         name: { type: String }, // e.g., JavaScript
-        level: {
-          type: String,
-          enum: ["Beginner", "Intermediate", "Advanced", "Expert"],
-        },
       },
     ],
 
