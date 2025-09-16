@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # 1. Checkout code
+      # 1. Checkout codes
       - uses: actions/checkout@v3
 
       # 2. Setup Node.js
@@ -19,64 +19,7 @@ jobs:
       # 3. Install dependencies
       - run: npm ci
 
-      # 4. Deploy to Render and wait until complete
-      - name: Deploy to Render and wait
-        env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      # 4. Trigger Render Deploy Hook
+      - name: Trigger Render Deploy
         run: |
-          set -e
-          echo "Triggering deploy..."
-
-          # Trigger deploy
-          response=$(curl -s -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
-            -H "Authorization: Bearer $RENDER_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d '{}')
-
-          echo "Raw deploy response: $response"
-
-          # Validate JSON
-          if ! echo "$response" | jq . >/dev/null 2>&1; then
-            echo "Error: Response is not valid JSON. Exiting."
-            exit 1
-          fi
-
-          # Extract deploy ID
-          deploy_id=$(echo "$response" | jq -r '.id // empty')
-          if [ -z "$deploy_id" ]; then
-            echo "Error: Deploy ID not found in response:"
-            echo "$response"
-            exit 1
-          fi
-
-          echo "Deploy ID: $deploy_id"
-
-          # Wait for deploy to finish
-          status=""
-          until [ "$status" == "succeeded" ] || [ "$status" == "failed" ]; do
-            raw_status=$(curl -s "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
-              -H "Authorization: Bearer $RENDER_API_KEY")
-
-            echo "Raw status response: $raw_status"
-
-            # Validate JSON
-            if ! echo "$raw_status" | jq . >/dev/null 2>&1; then
-              echo "Warning: Invalid JSON response. Retrying..."
-              sleep 5
-              continue
-            fi
-
-            # Extract status of our deploy
-            status=$(echo "$raw_status" | jq -r ".[] | select(.id==\"$deploy_id\") | .status // empty")
-            echo "Current deploy status: $status"
-
-            if [ "$status" == "failed" ]; then
-              echo "Deploy failed!"
-              exit 1
-            fi
-
-            sleep 5
-          done
-
-          echo "Deploy completed successfully!"
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
