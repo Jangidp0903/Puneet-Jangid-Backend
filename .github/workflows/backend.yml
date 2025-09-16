@@ -34,17 +34,18 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{}')
 
-          # Check if response is valid JSON
+          echo "Raw deploy response: $response"
+
+          # Make sure response is valid JSON
           if ! echo "$response" | jq . >/dev/null 2>&1; then
-            echo "Error: Invalid response from Render API:"
-            echo "$response"
+            echo "Error: Response is not valid JSON. Exiting."
             exit 1
           fi
 
           # Extract deploy ID
           deploy_id=$(echo "$response" | jq -r '.id // empty')
           if [ -z "$deploy_id" ]; then
-            echo "Error: Deploy ID not found. Response was:"
+            echo "Error: Deploy ID not found in response:"
             echo "$response"
             exit 1
           fi
@@ -54,10 +55,19 @@ jobs:
           # Wait for deploy to finish
           status=""
           until [ "$status" == "succeeded" ] || [ "$status" == "failed" ]; do
-            status=$(curl -s "https://api.render.com/v1/deploys/$deploy_id" \
-              -H "Authorization: Bearer $RENDER_API_KEY" \
-              | jq -r '.status // empty')
+            raw_status=$(curl -s "https://api.render.com/v1/deploys/$deploy_id" \
+              -H "Authorization: Bearer $RENDER_API_KEY")
 
+            echo "Raw status response: $raw_status"
+
+            # Check if JSON
+            if ! echo "$raw_status" | jq . >/dev/null 2>&1; then
+              echo "Warning: Invalid JSON response. Retrying..."
+              sleep 5
+              continue
+            fi
+
+            status=$(echo "$raw_status" | jq -r '.status // empty')
             echo "Current deploy status: $status"
 
             if [ "$status" == "failed" ]; then
