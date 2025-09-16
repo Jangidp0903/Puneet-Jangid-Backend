@@ -17,7 +17,7 @@ jobs:
       # 1. Install
       - run: npm ci
 
-      # 2. Lint (optional)
+      # 2. Lint
       - run: npm run lint
 
       # 3. Test
