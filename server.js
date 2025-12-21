@@ -23,19 +23,8 @@ import resumeRouter from "./routes/resume.Route.js";
 const app = express();
 
 // 5. CORS Configuration
-const allowedOrigins = [
-  process.env.DASHBOARD_URL,
-  process.env.FRONTEND_URL,
-].filter(Boolean);
 const corsOptions = {
-  origin: function (origin, callback) {
-    // allow non-browser requests (Postman, server-to-server) when origin is undefined
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error("CORS not allowed by server"), false);
-  },
+  origin: [process.env.DASHBOARD_URL, process.env.FRONTEND_URL],
   credentials: true,
 };
 
