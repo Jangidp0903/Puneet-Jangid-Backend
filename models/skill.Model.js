@@ -16,6 +16,7 @@ const SkillSchema = mongoose.Schema(
       enum: [
         "Frontend",
         "Backend",
+        "Language",
         "Database",
         "DevOps",
         "Tools & Technologies",
