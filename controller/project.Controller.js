@@ -15,12 +15,20 @@ export const createProject = async (req, res, next) => {
       duration,
       role,
     } = req.body;
+
+    // Normalize githubUrl to array
+    const githubUrls = Array.isArray(githubUrl)
+      ? githubUrl
+      : githubUrl
+      ? [githubUrl]
+      : [];
+
     const project = await Project.create({
       title,
       description,
       techStack,
       liveUrl,
-      githubUrl,
+      githubUrl: githubUrls,
       projectImage: req.files.projectImage[0].path,
       category,
       duration,
@@ -83,10 +91,19 @@ export const updateProject = async (req, res, next) => {
     project.description = req.body.description || project.description;
     project.techStack = req.body.techStack || project.techStack;
     project.liveUrl = req.body.liveUrl || project.liveUrl;
-    project.githubUrl = req.body.githubUrl || project.githubUrl;
     project.role = req.body.role || project.role;
     project.category = req.body.category || project.category;
     project.duration = req.body.duration || project.duration;
+
+    // Handle githubUrl - normalize to array if updated
+    if (req.body.githubUrl !== undefined) {
+      const githubUrls = Array.isArray(req.body.githubUrl)
+        ? req.body.githubUrl
+        : req.body.githubUrl
+        ? [req.body.githubUrl]
+        : [];
+      project.githubUrl = githubUrls;
+    }
 
     // Handle featured status - check if it's explicitly set in the request
     if (req.body.featured !== undefined) {

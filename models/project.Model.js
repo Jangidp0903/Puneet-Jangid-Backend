@@ -21,7 +21,8 @@ const ProjectSchema = mongoose.Schema(
       type: String,
     },
     githubUrl: {
-      type: String,
+      type: [String], // Changed to array for multiple repos
+      default: [], // Default to empty array
     },
     projectImage: {
       type: String,
