@@ -25,10 +25,17 @@ const storage = new CloudinaryStorage({
     const isPDF = file.mimetype === "application/pdf";
     const resourceType = isPDF ? "raw" : "image"; // Ensure it's set as 'raw' for PDFs
 
+    // replace spaces
+    let cleaned = fileNameWithoutExt
+      .replace(/[_\-\s]+/g, " ") // underscore, dash, space → space
+      .replace(/[^a-zA-Z0-9 ]/g, "") // remove all other symbols
+      .trim()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join("");
+
     // fix: add extension manually for PDFs
-    const publicId = isPDF
-      ? `${file.fieldname}_${Date.now()}_${fileNameWithoutExt}${fileExtension}`
-      : `${file.fieldname}_${Date.now()}_${fileNameWithoutExt}`;
+    const publicId = isPDF ? `${cleaned}${fileExtension}` : `${cleaned}`;
 
     return {
       folder,
