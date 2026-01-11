@@ -2,9 +2,13 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.Model.js";
 import { ErrorHandler } from "../middleware/errorHandler.js";
-import { generateToken } from "../utils/generateToken.js";
 import crypto from "crypto";
 import { sendEmail } from "../utils/sendEmail.js";
+import jwt from "jsonwebtoken";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../utils/generateToken.js";
 
 // Login User
 export const loginUser = async (req, res, next) => {
@@ -23,17 +27,31 @@ export const loginUser = async (req, res, next) => {
       return next(new ErrorHandler("Invalid Password", 400));
     }
 
-    const token = generateToken(user._id);
+    // Generate access token and refresh token
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    // Save refresh token in DB
+    user.refreshToken = refreshToken;
+    await user.save();
 
     const userData = user.toObject();
     delete userData.password;
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    });
+    // Set cookies
+    res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 1 * 60 * 1000, // 1 minute
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 2 * 60 * 1000, // 2 minutes
+      });
 
     res.status(200).json({
       success: true,
@@ -47,16 +65,81 @@ export const loginUser = async (req, res, next) => {
 // Logout User
 export const logoutUser = async (req, res, next) => {
   try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return next(new ErrorHandler("No refresh token provided", 400));
+    }
+
+    const user = await User.findOne({ refreshToken });
+    if (user) {
+      user.refreshToken = null;
+      await user.save();
+    }
+
     return res
-      .status(200)
-      .clearCookie("token", {
+      .clearCookie("accessToken", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
+        secure: true,
+        sameSite: "strict",
       })
+      .clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+      })
+      .status(200)
       .json({
         message: "User logged out successfully",
         success: true,
+      });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Refresh Token
+export const refreshToken = async (req, res, next) => {
+  try {
+    const oldRefreshToken = req.cookies.refreshToken;
+    if (!oldRefreshToken) {
+      return next(new ErrorHandler("No refresh token provided", 401));
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(oldRefreshToken, process.env.JWT_REFRESH_SECRET);
+    } catch (err) {
+      return next(new ErrorHandler("Invalid or expired refresh token", 401));
+    }
+
+    const user = await User.findById(decoded.userId);
+    if (!user || user.refreshToken !== oldRefreshToken) {
+      return next(new ErrorHandler("Invalid refresh token", 401));
+    }
+
+    const newAccessToken = generateAccessToken(user._id);
+    const newRefreshToken = generateRefreshToken(user._id);
+
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    res
+      .cookie("accessToken", newAccessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 1 * 60 * 1000,
+      })
+      .cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 2 * 60 * 1000,
+      })
+      .status(200)
+      .json({
+        success: true,
+        message: "Token refreshed successfully",
       });
   } catch (error) {
     next(error);
@@ -67,7 +150,7 @@ export const logoutUser = async (req, res, next) => {
 export const getUser = async (req, res, next) => {
   try {
     const user = await User.findById("680b0bdd656fe7247ffe6894").select(
-      "-password -resetPasswordToken -resetPasswordExpire"
+      "-password -resetPasswordToken -resetPasswordExpire -refreshToken"
     );
 
     res.status(200).json({

@@ -5,6 +5,7 @@ import {
   getUser,
   loginUser,
   logoutUser,
+  refreshToken,
   resetPassword,
   updatePassword,
   updateUser,
@@ -18,7 +19,10 @@ const userRouter = express.Router();
 userRouter.post("/login", loginUser);
 
 // Logout User
-userRouter.get("/logout", logoutUser);
+userRouter.post("/logout", logoutUser);
+
+// Refresh Token
+userRouter.post("/refresh-token", refreshToken);
 
 // Get User
 userRouter.get("/me", getUser);
