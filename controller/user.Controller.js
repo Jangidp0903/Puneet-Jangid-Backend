@@ -37,6 +37,7 @@ export const loginUser = async (req, res, next) => {
 
     const userData = user.toObject();
     delete userData.password;
+    delete userData.refreshToken;
 
     // Set cookies
     res
