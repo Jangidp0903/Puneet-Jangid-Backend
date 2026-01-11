@@ -44,13 +44,13 @@ export const loginUser = async (req, res, next) => {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
-        maxAge: 1 * 60 * 1000, // 1 minute
+        maxAge: 15 * 60 * 1000, // 15 minute
       })
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
-        maxAge: 2 * 60 * 1000, // 2 minutes
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
     res.status(200).json({
@@ -128,13 +128,13 @@ export const refreshToken = async (req, res, next) => {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
-        maxAge: 1 * 60 * 1000,
+        maxAge: 15 * 60 * 1000, // 15 minute
       })
       .cookie("refreshToken", newRefreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
-        maxAge: 2 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .status(200)
       .json({
