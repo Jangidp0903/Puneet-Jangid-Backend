@@ -37,19 +37,20 @@ export const loginUser = async (req, res, next) => {
 
     const userData = user.toObject();
     delete userData.password;
+    delete userData.refreshToken;
 
     // Set cookies
     res
       .cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "None",
         maxAge: 15 * 60 * 1000, // 15 minute
       })
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "None",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
@@ -80,12 +81,12 @@ export const logoutUser = async (req, res, next) => {
       .clearCookie("accessToken", {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "None",
       })
       .clearCookie("refreshToken", {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "None",
       })
       .status(200)
       .json({
@@ -127,13 +128,13 @@ export const refreshToken = async (req, res, next) => {
       .cookie("accessToken", newAccessToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "None",
         maxAge: 15 * 60 * 1000, // 15 minute
       })
       .cookie("refreshToken", newRefreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "None",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .status(200)
