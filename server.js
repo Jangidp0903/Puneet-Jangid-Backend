@@ -49,7 +49,7 @@ const PORT = process.env.PORT || 5000;
 connectDB()
   .then(() => {
     app.listen(PORT, () =>
-      console.log(`Server Started on Local Port : ${PORT}`)
+      console.log(`Server Started on Local Port : ${PORT}`),
     );
   })
   .catch((err) => console.log(err));
