@@ -40,19 +40,19 @@ export const loginUser = async (req, res, next) => {
     res
       .cookie('accessToken', accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+        secure: true,
+        sameSite: 'None',
         maxAge: 15 * 60 * 1000, // 15 minute
       })
       .cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+        secure: true,
+        sameSite: 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
     res.status(200).json({
-      message: 'User logged in successfully and cookies set and EC2 instance created',
+      message: 'User logged in successfully',
       accessToken,
       success: true,
       user: userData,
