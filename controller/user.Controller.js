@@ -52,10 +52,10 @@ export const loginUser = async (req, res, next) => {
       });
 
     res.status(200).json({
-      success: true,
-      user: userData,
       message: 'User logged in successfully',
       accessToken,
+      success: true,
+      user: userData,
     });
   } catch (error) {
     next(error);
