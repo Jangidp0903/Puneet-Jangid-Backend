@@ -21,8 +21,6 @@ import projectRouter from './routes/project.Route.js';
 // 4. Initialize App
 const app = express();
 
-// 1234
-
 // 5. CORS Configuration
 const corsOptions = {
   origin: [process.env.DASHBOARD_URL, process.env.FRONTEND_URL],
