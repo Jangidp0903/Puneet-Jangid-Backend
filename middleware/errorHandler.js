@@ -7,7 +7,7 @@ class ErrorHandler extends Error {
 }
 
 // Error Middleware to handle the error response
-const errorMiddleware = (err, req, res, next) => {
+const errorMiddleware = (err, req, res) => {
   if (err instanceof ErrorHandler) {
     return res.status(err.statusCode).json({
       success: false,
@@ -17,7 +17,7 @@ const errorMiddleware = (err, req, res, next) => {
 
   res.status(500).json({
     success: false,
-    message: "Internal Server Error",
+    message: 'Internal Server Error',
   });
 };
 

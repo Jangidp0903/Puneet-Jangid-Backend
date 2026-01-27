@@ -1,14 +1,11 @@
 // Import
-import bcrypt from "bcryptjs";
-import User from "../models/user.Model.js";
-import { ErrorHandler } from "../middleware/errorHandler.js";
-import crypto from "crypto";
-import { sendEmail } from "../utils/sendEmail.js";
-import jwt from "jsonwebtoken";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-} from "../utils/generateToken.js";
+import bcrypt from 'bcryptjs';
+import User from '../models/user.Model.js';
+import { ErrorHandler } from '../middleware/errorHandler.js';
+import crypto from 'crypto';
+import { sendEmail } from '../utils/sendEmail.js';
+import jwt from 'jsonwebtoken';
+import { generateAccessToken, generateRefreshToken } from '../utils/generateToken.js';
 
 // Login User
 export const loginUser = async (req, res, next) => {
@@ -18,13 +15,13 @@ export const loginUser = async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return next(new ErrorHandler("Invalid Email", 400));
+      return next(new ErrorHandler('Invalid Email', 400));
     }
 
     const isPasswordMatched = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatched) {
-      return next(new ErrorHandler("Invalid Password", 400));
+      return next(new ErrorHandler('Invalid Password', 400));
     }
 
     // Generate access token and refresh token
@@ -41,16 +38,16 @@ export const loginUser = async (req, res, next) => {
 
     // Set cookies
     res
-      .cookie("accessToken", accessToken, {
+      .cookie('accessToken', accessToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "None",
+        sameSite: 'None',
         maxAge: 15 * 60 * 1000, // 15 minute
       })
-      .cookie("refreshToken", refreshToken, {
+      .cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "None",
+        sameSite: 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
@@ -68,7 +65,7 @@ export const logoutUser = async (req, res, next) => {
   try {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      return next(new ErrorHandler("No refresh token provided", 400));
+      return next(new ErrorHandler('No refresh token provided', 400));
     }
 
     const user = await User.findOne({ refreshToken });
@@ -78,19 +75,19 @@ export const logoutUser = async (req, res, next) => {
     }
 
     return res
-      .clearCookie("accessToken", {
+      .clearCookie('accessToken', {
         httpOnly: true,
         secure: true,
-        sameSite: "None",
+        sameSite: 'None',
       })
-      .clearCookie("refreshToken", {
+      .clearCookie('refreshToken', {
         httpOnly: true,
         secure: true,
-        sameSite: "None",
+        sameSite: 'None',
       })
       .status(200)
       .json({
-        message: "User logged out successfully",
+        message: 'User logged out successfully',
         success: true,
       });
   } catch (error) {
@@ -103,19 +100,19 @@ export const refreshToken = async (req, res, next) => {
   try {
     const oldRefreshToken = req.cookies.refreshToken;
     if (!oldRefreshToken) {
-      return next(new ErrorHandler("No refresh token provided", 401));
+      return next(new ErrorHandler('No refresh token provided', 401));
     }
 
     let decoded;
     try {
       decoded = jwt.verify(oldRefreshToken, process.env.JWT_REFRESH_SECRET);
-    } catch (err) {
-      return next(new ErrorHandler("Invalid or expired refresh token", 401));
+    } catch {
+      return next(new ErrorHandler('Invalid or expired refresh token', 401));
     }
 
     const user = await User.findById(decoded.userId);
     if (!user || user.refreshToken !== oldRefreshToken) {
-      return next(new ErrorHandler("Invalid refresh token", 401));
+      return next(new ErrorHandler('Invalid refresh token', 401));
     }
 
     const newAccessToken = generateAccessToken(user._id);
@@ -125,22 +122,22 @@ export const refreshToken = async (req, res, next) => {
     await user.save();
 
     res
-      .cookie("accessToken", newAccessToken, {
+      .cookie('accessToken', newAccessToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "None",
+        sameSite: 'None',
         maxAge: 15 * 60 * 1000, // 15 minute
       })
-      .cookie("refreshToken", newRefreshToken, {
+      .cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "None",
+        sameSite: 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .status(200)
       .json({
         success: true,
-        message: "Token refreshed successfully",
+        message: 'Token refreshed successfully',
       });
   } catch (error) {
     next(error);
@@ -150,8 +147,8 @@ export const refreshToken = async (req, res, next) => {
 // Get User
 export const getUser = async (req, res, next) => {
   try {
-    const user = await User.findById("680b0bdd656fe7247ffe6894").select(
-      "-password -resetPasswordToken -resetPasswordExpire -refreshToken"
+    const user = await User.findById('680b0bdd656fe7247ffe6894').select(
+      '-password -resetPasswordToken -resetPasswordExpire -refreshToken',
     );
 
     res.status(200).json({
@@ -170,27 +167,25 @@ export const updatePassword = async (req, res, next) => {
 
     // Check if all fields are provided
     if (!currentPassword || !newPassword || !confirmPassword) {
-      return next(new ErrorHandler("All fields are required", 400));
+      return next(new ErrorHandler('All fields are required', 400));
     }
 
     // Find user by ID from token (auth middleware should attach req.user)
     const user = await User.findById(req.user);
 
     if (!user) {
-      return next(new ErrorHandler("User not found", 404));
+      return next(new ErrorHandler('User not found', 404));
     }
 
     // Check current password match
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
-      return next(new ErrorHandler("Current password is incorrect", 400));
+      return next(new ErrorHandler('Current password is incorrect', 400));
     }
 
     // Check if new password matches confirm password
     if (newPassword !== confirmPassword) {
-      return next(
-        new ErrorHandler("New password and confirm password do not match", 400)
-      );
+      return next(new ErrorHandler('New password and confirm password do not match', 400));
     }
 
     // Hash new password and update
@@ -200,7 +195,7 @@ export const updatePassword = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Password updated successfully",
+      message: 'Password updated successfully',
     });
   } catch (error) {
     next(error);
@@ -212,7 +207,7 @@ export const updateUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user);
     if (!user) {
-      return next(new ErrorHandler("User not found", 404));
+      return next(new ErrorHandler('User not found', 404));
     }
     user.fullName = req.body.fullName || user.fullName;
     user.email = req.body.email || user.email;
@@ -232,7 +227,7 @@ export const updateUser = async (req, res, next) => {
     await user.save();
     res.status(200).json({
       success: true,
-      message: "User updated successfully",
+      message: 'User updated successfully',
       user,
     });
   } catch (error) {
@@ -247,15 +242,12 @@ export const forgotPassword = async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return next(new ErrorHandler("User not found", 404));
+      return next(new ErrorHandler('User not found', 404));
     }
 
     // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
     user.resetPasswordToken = hashedToken;
     user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
@@ -275,7 +267,7 @@ export const forgotPassword = async (req, res, next) => {
       <!-- Main Content -->
       <div style="padding: 35px 30px; background-color: #ffffff;">
         <p style="margin-top: 0; font-size: 16px; color: #333333;">Hello ${
-          user.fullName || "there"
+          user.fullName || 'there'
         },</p>
         
         <p style="font-size: 16px; color: #333333; line-height: 1.6;">You requested to reset your password for your personal portfolio account. Please click the button below to create a new password:</p>
@@ -314,11 +306,11 @@ export const forgotPassword = async (req, res, next) => {
     </div>
   `;
 
-    await sendEmail(user.email, "Password Reset Request", emailContent);
+    await sendEmail(user.email, 'Password Reset Request', emailContent);
 
     res.status(200).json({
       success: true,
-      message: "Password reset link sent to your email",
+      message: 'Password reset link sent to your email',
     });
   } catch (error) {
     next(error);
@@ -331,14 +323,14 @@ export const resetPassword = async (req, res, next) => {
     const { token } = req.params;
     const { password } = req.body;
 
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpire: { $gt: Date.now() },
     });
 
     if (!user) {
-      return next(new ErrorHandler("Token is invalid or expired", 400));
+      return next(new ErrorHandler('Token is invalid or expired', 400));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -349,7 +341,7 @@ export const resetPassword = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Password reset successfully",
+      message: 'Password reset successfully',
     });
   } catch (error) {
     next(error);
